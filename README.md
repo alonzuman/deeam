@@ -1,3 +1,3 @@
 <h1>Deeam</h1>
-<h2>Introduction</h2>
-<p>This app is a a cool attempt of creating a chat app </p>
+<p>This is supposed to be a cool chat app, built using React Native </p>
+

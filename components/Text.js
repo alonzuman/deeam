@@ -1,14 +1,17 @@
+import { useTheme } from '@react-navigation/native'
 import React from 'react'
 import { StyleSheet, Text as NativeText, View } from 'react-native'
 
-export default function Text({ children, color, numberOfLines, ...rest }) {
+export default function Text({ children, color, numberOfLines, style, ellipsizeMode = 'tail', ...rest }) {
+  const { colors } = useTheme()
+
   return (
     <NativeText
-      style={{ ...styles.root, ...styles[color] }}
+      style={{ ...styles.root, color: colors.text, ...styles[color], ...style }}
       numberOfLines={numberOfLines}
-      ellipsizeMode='tail'
+      ellipsizeMode={ellipsizeMode}
       {...rest}
-      >
+    >
       {children}
     </NativeText>
   )
@@ -16,8 +19,8 @@ export default function Text({ children, color, numberOfLines, ...rest }) {
 
 const styles = StyleSheet.create({
   root: {
-    fontSize: 18,
-    fontWeight: "200"
+    fontSize: 16,
+    fontWeight: "400"
   },
 
   secondary: {

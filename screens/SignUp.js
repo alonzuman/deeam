@@ -10,6 +10,7 @@ import { auth } from '../firebase'
 import { setProfileAsync } from '../features/profile/profileSlice'
 import { useDispatch } from 'react-redux'
 import SecondaryButton from '../components/SecondaryButton'
+import { extractUserDetails } from '../utils/functions'
 
 export default function SignUp({ navigation }) {
   const dispatch = useDispatch()
@@ -18,20 +19,14 @@ export default function SignUp({ navigation }) {
   })
 
   const onSubmit = data => {
-    const displayName = data.displayName
     auth.createUserWithEmailAndPassword(data.email, data.password)
       .then(res => {
         const user = res.user;
-        dispatch(setProfileAsync({
-          uid: user.uid,
-          email: user.email,
-          photoURL: user.photoURL,
-          phoneNumber: user.phoneNumber,
-          displayName: displayName
-        }))
+        dispatch(setProfileAsync(extractUserDetails(user)))
       })
       .catch(err => console.log(err.message))
   }
+
 
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: 'center' }}>
@@ -43,6 +38,8 @@ export default function SignUp({ navigation }) {
           render={({ value, onChange, onBlur }) => (
             <TextField
               label='Email'
+              keyboardType='email-address'
+              error={errors?.email?.message}
               value={value}
               onChangeText={text => onChange(text)}
               onBlur={onBlur}
@@ -52,25 +49,29 @@ export default function SignUp({ navigation }) {
         />
         <Controller
           control={control}
-          name='displayName'
+          name='password'
           defaultValue=''
           render={({ value, onChange, onBlur }) => (
             <TextField
-              label='Display Name'
+              error={errors?.password?.message}
+              label='Password'
               value={value}
+              secureTextEntry
               onChangeText={text => onChange(text)}
               onBlur={onBlur}
-              placeholder='John Doe'
+              placeholder='Password'
             />
           )}
         />
         <Controller
           control={control}
-          name='password'
+          name='confirmPassword'
           defaultValue=''
           render={({ value, onChange, onBlur }) => (
             <TextField
-              label='Password'
+              secureTextEntry
+              error={errors?.confirmPassword?.message}
+              label='Confirm Password'
               value={value}
               onChangeText={text => onChange(text)}
               onBlur={onBlur}

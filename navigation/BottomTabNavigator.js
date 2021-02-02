@@ -3,13 +3,15 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createStackNavigator } from '@react-navigation/stack';
 import Chats from '../screens/Chats';
 import Feed from '../screens/Feed';
-import Chat from '../features/matches/Chat';
 import MyProfile from '../screens/MyProfile';
-import ChatHeader from '../features/matches/ChatHeader';
-import { AntDesign, SimpleLineIcons, Ionicons } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import Profile from '../screens/Profile';
-import AddProfileSection from '../features/profile/AddProfileSection';
-import EditProfile from '../features/profile/EditProfile';
+import EditProfile from '../screens/EditProfile';
+import { useTheme } from '@react-navigation/native';
+import DefaultButton from '../components/DefaultButton';
+import { useProfile } from '../features/profile/profileSlice';
+import FormField from '../screens/FormField';
+import Chat from '../features/chats/Chat';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -58,20 +60,16 @@ const Tabs = () => (
 )
 
 export function BottomTabNavigator() {
+  const {profile} = useProfile()
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Feed" component={Tabs} />
       <Stack.Screen
         name="Chat"
         component={Chat}
-        options={({ route }) => ({
+        options={{
           headerShown: true,
-          headerTitle: <ChatHeader photoURL={route?.params?.photoURL} title={route?.params?.title} />,
-          headerTitleAlign: 'left',
-          headerTitleStyle: {
-            marginLeft: 8
-          },
-        })}
+        }}
       />
       <Stack.Screen
         name="Profile"
@@ -79,24 +77,23 @@ export function BottomTabNavigator() {
         options={({ navigation, route }) => ({
           headerShown: true,
           headerTitle: route.params.displayName,
-          // headerTitle: 'route?.params?.displayName',
           headerBackTitle: 'Back',
         })}
       />
       <Stack.Screen
-        name="Add Profile Section"
-        component={AddProfileSection}
-        options={({navigation, route}) => ({
+        name='Edit Profile'
+        component={EditProfile}
+        options={({ navigation, route }) => ({
           headerShown: true,
-          headerBackTitle: 'Cancel'
+          headerTitle: profile?.displayName,
+          headerLeft: () => <DefaultButton onPress={navigation.goBack} title='Cancel' />,
         })}
       />
       <Stack.Screen
-        name="Edit Profile"
-        component={EditProfile}
-        options={({navigation, route}) => ({
+        name='Form Field'
+        component={FormField}
+        options={({ navigation, route }) => ({
           headerShown: true,
-          headerBackTitle: 'Cancel'
         })}
       />
     </Stack.Navigator>

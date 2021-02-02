@@ -11,11 +11,12 @@ export default function App() {
         dark: false,
         colors: {
           primary: '#5039cd',
+          primaryLight: '#dfd9ff',
           background: '#f7f7f7',
           notification: '',
           card: '#fff',
           border: '#ebebeb',
-          text: '#414048'
+          text: '#414048',
         }
       }}>
         <Navigation />

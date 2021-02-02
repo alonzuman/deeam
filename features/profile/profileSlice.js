@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { db } from "../../firebase";
+import { useSelector } from "react-redux";
+import { auth, db } from "../../firebase";
 
 const INITIAL_STATE = {
   profile: null,
@@ -22,7 +23,10 @@ const profileSlice = createSlice({
       state.isUpdating = true;
     },
     setProfile: (state, action) => {
-      state.profile = action.payload;
+      state.profile = {
+        ...state?.profile,
+        ...action.payload
+      };
       state.isUpdating = false;
       state.isFetching = false;
       state.isFetched = true;
@@ -33,24 +37,18 @@ const profileSlice = createSlice({
       state.isFetching = false;
       state.isFetched = false;
     },
-    addProfileSection: (state, action) => {
-      state.profile.sections = action.payload;
-      state.isUpdating = false;
-      state.isFetching = false;
-      state.isFetched = false;
-    }
   }
 })
 
-export const { isUpdating, isFetching, isFetched, setProfile, clearProfile, addProfileSection } = profileSlice.actions
+export const { isUpdating, isFetching, isFetched, setProfile, clearProfile } = profileSlice.actions
 
 export const updateProfileAsync = (profile) => dispatch => {
   dispatch(isUpdating())
 
-  db.collection('profiles').doc(profile.uid).set({
+  db.collection('profiles').doc(auth.currentUser.uid).set({
     ...profile
   }, { merge: true })
-    .then(res => {
+    .then(() => {
       dispatch(setProfile({
         ...profile
       }))
@@ -80,19 +78,8 @@ export const setProfileAsync = (profile) => dispatch => {
     .catch(err => console.log(err.message))
 }
 
-export const addProfileSectionAsync = (uid, section) => dispatch => {
-  dispatch(isUpdating())
-
-  db.collection('profiles').doc(uid).collection('profileSections').add(section)
-    .then(res => {
-      dispatch(addProfileSection({
-        id: res.id,
-        ...section
-      }))
-    })
-    .catch(err => {
-      console.log(err.message)
-    })
+export const useProfile = () => {
+  return useSelector(state => state.profile)
 }
 
 export default profileSlice.reducer;

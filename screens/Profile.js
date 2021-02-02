@@ -1,68 +1,44 @@
-import React, { useEffect } from 'react'
-import { useState } from 'react';
-import { StyleSheet, View } from 'react-native'
+import { current } from '@reduxjs/toolkit';
+import React, { useEffect, useLayoutEffect } from 'react'
+import { View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler';
-import Container from '../components/Container';
+import { useDispatch, useSelector } from 'react-redux';
+import Avatar from '../components/Avatar';
+import DefaultButton from '../components/DefaultButton';
 import Header from '../components/Header';
-import SecondaryButton from '../components/SecondaryButton';
-import ProfileSection from '../features/profile/ProfileSection';
-import { db } from '../firebase';
+import Heading from '../components/Heading';
+import ProfileImageHeroSection from '../features/profile/ProfileImageHeroSection';
+import { useProfile } from '../features/profile/profileSlice';
+import ProfileBio from '../features/profiles/ProfileBio';
+import ProfilePersonalInfo from '../features/profiles/ProfilePersonalInfo';
+import { setCurrentProfileAsync } from '../features/profiles/profilesSlice';
 
 export default function Profile({ route, navigation }) {
-  const { uid } = route?.params;
-  const [profile, setProfile] = useState(null)
+  const { uid, displayName } = route?.params;
+  const { profiles: { currentProfile }, isFetching, isFetched } = useSelector(state => state.profiles)
+  const { profile: myProfile } = useProfile()
+  const dispatch = useDispatch()
+  const isMe = uid === myProfile.uid;
 
   useEffect(() => {
-    const fetchProfileAndSections = () => {
-      const promises = [
-        db.collection('profiles').doc(uid).get()
-          .then(snapshot => {
-            return {
-              uid: snapshot.id,
-              ...snapshot.data()
-            }
-          })
-          .catch(err => {
-            console.log(err.message)
-          }),
-        db.collection('profiles').doc(uid).collection('profileSections').get()
-          .then(snapshot => {
-            return [...snapshot.docs.map(doc => {
-              return {
-                id: doc.id,
-                ...doc.data()
-              }
-            })]
-          })
-          .catch(err => {
-            console.log(err.message)
-          })
-      ]
+    dispatch(setCurrentProfileAsync(uid))
+  }, [uid, displayName])
 
-      Promise.all(promises)
-        .then(values => setProfile({ ...values[0], sections: [...values[1]] }))
-        .catch(err => console.log(err.message))
-    }
-
-    if (uid) {
-      fetchProfileAndSections()
-    }
-  }, [uid])
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => <DefaultButton title='Back' onPress={navigation.goBack} />,
+      headerTitle: () => <Heading variant='h4'>{displayName}</Heading>,
+      headerRight: () => <DefaultButton title={isMe ? 'Edit' : ''} onPress={() => isMe ? navigation.navigate('Edit Profile') : null} />
+    })
+  }, [navigation])
 
   return (
     <ScrollView style={{ paddingHorizontal: 16, flex: 1 }}>
-      <Header title={profile?.displayName} />
-      <SecondaryButton onPress={() => navigation.navigate('Add Profile Section')} title='Add Section' />
-      {profile?.sections?.map(({ type, data }) => (
-        <ProfileSection
-          key={data.id}
-          type={type}
-          data={data}
-        />
-      ))}
+      <Header title={currentProfile?.displayName} />
+      <ProfileImageHeroSection uri={currentProfile?.photoURL} title='Me!' style={{ marginBottom: 16 }} />
+      <ProfilePersonalInfo profile={currentProfile} />
+      <ProfileBio bio={currentProfile?.bio} />
       <View style={{ height: 155 }} />
     </ScrollView>
   )
 }
-
-const styles = StyleSheet.create({})

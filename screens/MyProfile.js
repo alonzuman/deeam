@@ -34,14 +34,12 @@ export default function Profile({ navigation }) {
         title={`Hi ${profile?.displayName?.split(' ')[0]} 👋`}
       />
       <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-        <Avatar uri={profile?.photoURL} size='xxl' onPress={viewProfile} />
+        <Avatar style={{ marginVertical: 24 }} uri={profile?.photoURL} size='xxl' onPress={viewProfile} />
         <View style={{ alignItems: 'center', flexDirection: 'row', marginTop: 16 }}>
           <SecondaryButton style={{ width: 136, marginRight: 4 }} title='Sign Out' onPress={signOut} />
           <PrimaryButton style={{ width: 136, marginLeft: 4 }} title='Edit Profile' onPress={editProfile} />
         </View>
       </View>
-      <Heading style={{ marginTop: 24 }} variant='h2'>Settings ⚙️</Heading>
-
     </ScrollView>
   )
 }

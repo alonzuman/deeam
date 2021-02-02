@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import profileReducer from "./features/profile/profileSlice";
-import matchesReducer from "./features/matches/matchesSlice";
+import chatsReducer from "./features/chats/chatsSlice";
+import profilesReducer from "./features/profiles/profilesSlice";
 
 const store = configureStore({
   reducer: {
     profile: profileReducer,
-    matches: matchesReducer,
+    profiles: profilesReducer,
+    chats: chatsReducer,
   }
 })
 
